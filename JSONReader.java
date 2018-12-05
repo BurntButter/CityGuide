@@ -52,7 +52,7 @@ public class JSONReader {
 			  Event.opening_hours = hours;
 			  Event.rating = rating;
 			  String[] addressArray = Event.stringToken(address);
-			  Event.country = addressArray[2];
+			  Event.location = addressArray[2];
 			}
 
 			//convert json object to string

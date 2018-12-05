@@ -17,22 +17,22 @@ public class Event {
 	
 	public String candidates;
 	@JsonProperty ("formatted_address")
-	public static String formatted_address;
+	public static String formatted_address = "Address";
 	@JsonProperty ("name")
-	public static String name;
+	public static String name = "Name";
 	@JsonProperty ("opening_hours")
-	public static String opening_hours;
+	public static String opening_hours = "Hours";
 	@JsonProperty ("rating")
-	public static String rating;
-	public static String country;
+	public static String rating = "Rating";
+	public static String location = "Location";
 
-	public String getRating() {
+	public static String getRating() {
 		return rating;
 	}
 	public void setRating(String rating) {
 		Event.rating = rating;
 	}
-	public String getFormatted_address() {
+	public static String getFormatted_address() {
 		return formatted_address;
 	}
 	public void setFormatted_address(String formatted_address) {
@@ -51,7 +51,7 @@ public class Event {
 		Event.opening_hours = opening_hours;
 	}
 	public String toString() {
-		String output = String.format("\n Event Details: country %s formatted_address %s, name %s, rating %s, opening_hours %s", country, formatted_address, name, rating, opening_hours);
+		String output = String.format("\n Event Details: location %s formatted_address %s, name %s, rating %s, opening_hours %s", location, formatted_address, name, rating, opening_hours);
 		return output;
 	}
 	

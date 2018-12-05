@@ -2,13 +2,9 @@ package application;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import google.Event;
 import google.HTTPRequest;
-import google.JSONReader;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -19,7 +15,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.geometry.Insets;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -107,15 +104,31 @@ public class CityGuideGUI extends Application{
         Button startButton = new Button("Get Started");
         startButton.setOnAction(e -> window.setScene(homeScene));
         
-        VBox startLayout = new VBox(20);
+        startlbl1.setFont(Font.font("Verdana", 35));
+        startlbl1.setTextAlignment(TextAlignment.CENTER);
+        
+        startlbl2.setFont(Font.font("Verdana", 16));
+        startlbl2.setTextAlignment(TextAlignment.CENTER);
+        
+        startButton.setPadding(new Insets(10,10,10,10));
+        
+        GridPane startLayout = new GridPane();
+        GridPane.setColumnIndex(startlbl1, 1);
+        GridPane.setColumnIndex(startlbl2, 1);
+        GridPane.setColumnIndex(startButton, 1);
+        GridPane.setRowIndex(startlbl1, 1);
+        GridPane.setRowIndex(startlbl2, 2);
+        GridPane.setRowIndex(startButton, 3);
+        GridPane.setMargin(startlbl1, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(startlbl2, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(startButton, new Insets(5, 10, 5, 10));
+
         startLayout.getChildren().addAll(startlbl1, startlbl2, startButton);
         startLayout.setPadding(new Insets(85,20,40,200));
         startScene = new Scene(startLayout, 600, 300);
         
         
         //Home Screen
-        searchList = new ListView<>();
-        searchList.getItems().addAll(Event.country, Event.name, Event.formatted_address, Event.rating, Event.opening_hours);
         HBox searchHbox = new HBox();
         searchHbox.getChildren().addAll(searchField, searchButton);
         searchButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -124,7 +137,7 @@ public class CityGuideGUI extends Application{
 				HTTPRequest.searchString = searchField.getText();
 				try {
 					HTTPRequest.sendGet();
-			
+					searchList.getItems().addAll("Location: " + Event.location, "Name: " + Event.name, "Address: " + Event.formatted_address, "Rating: " + Event.rating, "Hours: " + Event.opening_hours);
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				} catch (UnsupportedEncodingException e) {
@@ -133,16 +146,47 @@ public class CityGuideGUI extends Application{
 					e.printStackTrace();
 				}
 			}
-
-			
         });
+        
+        savedList = new ListView<>();
+        Button saveButton = new Button("Save");
+        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				HTTPRequest.saveFile = "1";
+				savedList.getItems().addAll("");
+				try {
+					HTTPRequest.sendGet();
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+        	
+        });
+        
+        searchList = new ListView<>();
         GridPane searchGrid = new GridPane();
+ 
         GridPane.setRowIndex(searchHbox, 1);
         GridPane.setColumnIndex(searchHbox, 1);
-        GridPane.setRowIndex(searchList, 3);
+        GridPane.setRowIndex(searchList, 2);
         GridPane.setColumnIndex(searchList, 1);
+        GridPane.setMargin(searchHbox, new Insets(15, 10, 15, 10));
+        GridPane.setColumnIndex(saveButton, 1);
+        GridPane.setMargin(searchList, new Insets(5, 10, 5, 10));
+        GridPane.setRowIndex(saveButton, 3);
+        GridPane.setMargin(saveButton, new Insets(5, 10, 5, 10));
+        saveButton.setPadding(new Insets(10,40,10,10));
+
         searchGrid.getColumnConstraints().add(new ColumnConstraints(75));
-        searchGrid.getChildren().addAll(searchHbox, searchList);
+        searchGrid.getChildren().addAll(searchHbox, searchList, saveButton);
+        
+        
         homeLayout = new BorderPane();
         homeLayout.setTop(menuBar);
         homeLayout.setCenter(searchGrid);
@@ -151,8 +195,6 @@ public class CityGuideGUI extends Application{
         
         
         //Saved Screen
-        savedList = new ListView<>();
-        savedList.getItems().addAll("City1", "City 2", "City 3");
         savedList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         savedScreenButton = new Button("Submit");
         savedScreenButton.setOnAction(e -> System.out.println("test"));
