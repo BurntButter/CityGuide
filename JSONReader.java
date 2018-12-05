@@ -15,7 +15,7 @@ public class JSONReader {
 	@JsonIgnoreProperties
 	static Event evt = new Event();
 	
-	public void run() throws JSONException {
+	public static void run() throws JSONException {
 		
 		
 		try {
@@ -47,12 +47,12 @@ public class JSONReader {
 			  String name = jsonObj2.getString("name");
 			  String hours = jsonObj2.getString("opening_hours");
 			  String rating = jsonObj2.getString("rating");
-			  evt.formatted_address = address;
-			  evt.name = name;
-			  evt.opening_hours = hours;
-			  evt.rating = rating;
+			  Event.formatted_address = address;
+			  Event.name = name;
+			  Event.opening_hours = hours;
+			  Event.rating = rating;
 			  String[] addressArray = Event.stringToken(address);
-			  evt.country = addressArray[2];
+			  Event.country = addressArray[2];
 			}
 
 			//convert json object to string

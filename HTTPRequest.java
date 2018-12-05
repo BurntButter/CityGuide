@@ -15,14 +15,12 @@ import java.net.URLEncoder;
 public class HTTPRequest {
 	
 	public static void main(String[] args) throws Exception {
-		HTTPRequest http = new HTTPRequest();
-		http.sendGet();
+
 	}	
 
-	String searchString = "Museum of Contemporary Art Australia";
-
+	public static String searchString = "";
 	
-	public void sendGet() throws Exception, MalformedURLException, UnsupportedEncodingException{
+	public static void sendGet() throws Exception, MalformedURLException, UnsupportedEncodingException{
 		
 		final String resultsFile = "C:\\Users\\brent\\Desktop\\CityGuide\\JSONFiles\\Results.json";
 
@@ -39,25 +37,28 @@ public class HTTPRequest {
 		System.out.println("Sending GET request");
 		System.out.println("Response Code: "  + responseCode);
 		
-		BufferedReader in = new BufferedReader(
+		if(responseCode == 200) {
+			BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
+			String inputLine;
+			StringBuffer response = new StringBuffer();
 
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			String responseStr = response.toString();
+			byte[] bytes = responseStr.getBytes();
+
+			try (OutputStream out = new FileOutputStream(resultsFile)){
+				out.write(bytes);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.out.println("Invalid Entry");
 		}
-		in.close();
-
-		String responseStr = response.toString();
-		byte[] bytes = responseStr.getBytes();
-
-		try (OutputStream out = new FileOutputStream(resultsFile)){
-			out.write(bytes);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 }
