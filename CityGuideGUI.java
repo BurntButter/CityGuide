@@ -1,16 +1,21 @@
 package application;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import google.Event;
 import google.HTTPRequest;
 import google.JSONReader;
+import google.LibraryReader;
 import google.WriteToFile;
 import google.YelpEvent;
 
 import org.json.*;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
@@ -35,6 +40,9 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 /**
@@ -44,10 +52,15 @@ import javafx.stage.Stage;
 public class CityGuideGUI extends Application{
     
     Stage window;
-    BorderPane homeLayout, savedLayout;
+    BorderPane homeLayout, savedLayout, popupPane;
     Scene startScene, homeScene, savedScene;
     ListView<String> savedList, searchList;
+    Label l;
+    Popup popup;
     Button savedScreenButton;
+    Boolean isYelp = false;
+    Event ge = new Event();
+    YelpEvent ye = new YelpEvent();
     
     public static void main(String[] args) {
         launch(args);
@@ -137,7 +150,14 @@ public class CityGuideGUI extends Application{
         
         //Home Screen
         HBox searchHbox = new HBox(8);
+        searchYelp.setTooltip(new Tooltip("Input as 'Name, City'"));
         searchHbox.getChildren().addAll(searchField, searchButton, searchYelp);
+        searchField.setOnKeyTyped(new EventHandler<KeyEvent>() {
+        	@Override
+        	public void handle(KeyEvent arg0) {
+        		searchList.getItems().clear();
+        	}
+        });
         searchButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
@@ -155,20 +175,24 @@ public class CityGuideGUI extends Application{
 				}
 				
 				try {
-					JSONReader.run(1);
+					ge = (Event)JSONReader.run(1);
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
 				
-				searchList.getItems().addAll("Location: " + Event.location, "Name: " + Event.name, "Address: " + Event.formatted_address, "Rating: " + Event.rating, "Hours: " + Event.opening_hours);
-				
+				searchList.getItems().addAll("Location: " + ge.location, "Name: " + ge.name, "Address: " + ge.formatted_address, "Rating: " + ge.rating, "Hours: " + ge.opening_hours);
+				isYelp = false;
 			}
         });
+        
+        
         
         searchYelp.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				searchList.getItems().clear();
+				ObservableList <String> list =  FXCollections.observableArrayList();
+				searchList.setItems(list);
+				
 				HTTPRequest.searchString = searchField.getText();
 				
 				try {
@@ -182,12 +206,14 @@ public class CityGuideGUI extends Application{
 				}
 				
 				try {
-					JSONReader.run(0);
+					ye = (YelpEvent)JSONReader.run(0);
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
 				
-				searchList.getItems().addAll("Name:" + YelpEvent.name);
+				searchList.getItems().addAll("Name: " + ye.name, "Review Count: " + ye.review_count, "Rating: " + ye.rating, "Phone Number: " + ye.display_phone, "Open: " + ye.is_closed, "Address: " + ye.display_address);
+			
+				isYelp = true;
 			}
         });
         
@@ -203,7 +229,7 @@ public class CityGuideGUI extends Application{
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					WriteToFile.write();
+					WriteToFile.write((isYelp)? ye : ge);
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				} catch (UnsupportedEncodingException e) {
@@ -243,7 +269,34 @@ public class CityGuideGUI extends Application{
         
         
         //Saved Screen
+		l = new Label();
+		GridPane popGrid = new GridPane();
+		popupPane = new BorderPane();
+		popGrid.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+		popupPane.setCenter(popGrid);
+        popup = new Popup();
+		popup.setX(300);
+		popup.setY(200);
+		popup.getContent().addAll(l, popupPane);
+		
         savedList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        
+        savedList.setOnMouseClicked(new ListViewHandler(){
+            @Override
+            public void handle(javafx.scene.input.MouseEvent event) {
+            	List<String> fileList = LibraryReader.ReadFileNames();
+            	String fileSelected = fileList.get(savedList.getSelectionModel().getSelectedIndex());
+            	System.out.println(fileSelected);
+				File f = LibraryReader.LoadFiles(fileSelected);
+				LibraryReader.LoadFiles(fileSelected);
+				l.setText(f.toString());
+				
+				popup.show(window);
+            }
+        });
+        
+        	
+        savedList.getItems().addAll(LibraryReader.ReadFileNames());
         savedScreenButton = new Button("Clear All");
         
           

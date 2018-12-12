@@ -17,7 +17,7 @@ public class JSONReader {
 	
 	static YelpEvent yelpEvt = new YelpEvent();
 	
-	public static void run(int dec) throws JSONException {
+	public static iSerialiazable run(int dec) throws JSONException {
 		
 		
 		try {
@@ -40,6 +40,9 @@ public class JSONReader {
 			//Create a json object from the string
 			JSONObject jsonObj = new JSONObject(fileAsString);
 			
+			YelpEvent ye = new YelpEvent();
+			Event ge = new Event();
+			
 			//Get json array from json object (candidates)
 			if(dec == 1) {
 				JSONArray ja_data = jsonObj.getJSONArray("candidates");
@@ -50,33 +53,44 @@ public class JSONReader {
 				  String name = jsonObj2.getString("name");
 				  String hours = jsonObj2.getString("opening_hours");
 				  String rating = jsonObj2.getString("rating");
-				  Event.formatted_address = address;
-				  Event.name = name;
-				  Event.opening_hours = hours;
-				  Event.rating = rating;
+	
+				  ge.formatted_address = address;
+				  ge.name = name;
+				  ge.opening_hours = hours;
+				  ge.rating = rating;
 				  String[] addressArray = Event.stringToken(address);
-				  Event.location = addressArray[2];
+				  ge.location = addressArray[2];
 				  System.out.println(evt.toString());
 				}
 			} else {
-				JSONArray ja_data = jsonObj.getJSONArray("candidates");
+				JSONArray ja_data = jsonObj.getJSONArray("businesses");
 				int length = ja_data.length();
 				for(int i=0; i<length; i++) {
 				  JSONObject jsonObj2 = ja_data.getJSONObject(i);
 				  String name = jsonObj2.getString("name");
-				  String address = jsonObj2.getString("display_address");
 				  String hours = jsonObj2.getString("is_closed");
 				  String rating = jsonObj2.getString("rating");
 				  String reviewCount = jsonObj2.getString("review_count");
 				  String phoneNO = jsonObj2.getString("display_phone");
-				  YelpEvent.name = name;
-				  YelpEvent.display_address = address;
-				  YelpEvent.is_closed = hours;
-				  YelpEvent.rating = rating;
-				  YelpEvent.review_count = reviewCount;
-				  YelpEvent.display_phone = phoneNO;
+				  JSONObject jsonObj3 = jsonObj2.getJSONObject("location");
+				  String address = jsonObj3.getString("display_address");
+				  
+				  ye.name = name;
+				  ye.display_address = address;
+				  ye.is_closed = hours;
+				  ye.rating = rating;
+				  ye.review_count = reviewCount;
+				  ye.display_phone = phoneNO;
+				  
 				  System.out.println(yelpEvt.toString());
 				}
+
+			}
+			
+			if(dec == 1) {
+				return ge;
+			} else {
+				return ye;
 			}
 
 			
@@ -88,5 +102,6 @@ public class JSONReader {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		return null;
 		}
 }

@@ -64,7 +64,11 @@ public class HTTPRequest {
 		
 		String authToken = "5MbnjRi-73zwJM_kovPDpiDooyaYa9XaCqty36B7BSnGNBGACycXnl_LJQcO7vnJTP9dJrcHzUdJAOe5oFuYxND7wtcyCKbfxrnvjAHTDtj1x0lMRx1j1-ugNUQIXHYx";
 		String yelpBaseUrl = "https://api.yelp.com/v3/businesses/search?term=";
-		String urlString = String.format("%s%s", yelpBaseUrl, URLEncoder.encode(searchString, "UTF-8").replace("+", "%20"));
+		String locationURL = "&location=";
+		searchString = searchString.replaceAll("\\s","");
+		String[] searchArray = Event.stringToken(searchString);
+		
+		String urlString = String.format("%s%s%s%s", yelpBaseUrl, URLEncoder.encode(searchArray[0], "UTF-8").replace("+", "%20"), locationURL, searchArray[1]);
 		System.out.println(urlString);
 		
 		URL obj = new URL(urlString);
