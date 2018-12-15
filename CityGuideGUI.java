@@ -1,8 +1,11 @@
 package application;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import google.Event;
@@ -62,6 +65,8 @@ public class CityGuideGUI extends Application{
     Event ge = new Event();
     YelpEvent ye = new YelpEvent();
     
+    
+    
     public static void main(String[] args) {
         launch(args);
     }
@@ -70,6 +75,17 @@ public class CityGuideGUI extends Application{
     public void start(Stage primaryStage) throws Exception, JSONException{
         window = primaryStage;
         window.setTitle("Welcome to City Guide!");
+        
+        //Create directory for saved files
+        Path dirPath = Paths.get("/outputFiles/");
+        if(!Files.isDirectory(dirPath)) {
+        	 try {
+             	Files.createDirectory(dirPath);
+             } catch (FileAlreadyExistsException e){
+             	e.printStackTrace();
+             }
+        }
+       
         
         //Text Fields
         TextField searchField = new TextField();
@@ -125,6 +141,8 @@ public class CityGuideGUI extends Application{
 			@Override
 			public void handle(ActionEvent event) {
 				window.setScene(homeScene);
+		        savedList.getItems().addAll(LibraryReader.ReadFileNames());
+
 			}
         	
         });
@@ -180,7 +198,7 @@ public class CityGuideGUI extends Application{
 					e1.printStackTrace();
 				}
 				
-				searchList.getItems().addAll("Location: " + ge.location, "Name: " + ge.name, "Address: " + ge.formatted_address, "Rating: " + ge.rating, "Hours: " + ge.opening_hours);
+				searchList.getItems().addAll("Name: " + ge.name, "Location: " + ge.location, "Address: " + ge.formatted_address, "Rating: " + ge.rating, "Open Now: " + ge.opening_hours);
 				isYelp = false;
 			}
         });
@@ -211,7 +229,7 @@ public class CityGuideGUI extends Application{
 					e1.printStackTrace();
 				}
 				
-				searchList.getItems().addAll("Name: " + ye.name, "Review Count: " + ye.review_count, "Rating: " + ye.rating, "Phone Number: " + ye.display_phone, "Open: " + ye.is_closed, "Address: " + ye.display_address);
+				searchList.getItems().addAll("Name: " + ye.name, "Address: " + ye.display_address, "Review Count: " + ye.review_count, "Rating: " + ye.rating, "Phone Number: " + ye.display_phone, "Open: " + ye.is_closed);
 			
 				isYelp = true;
 			}
@@ -243,6 +261,7 @@ public class CityGuideGUI extends Application{
         
         searchList = new ListView<>();
         GridPane searchGrid = new GridPane();
+
         
         searchGrid.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
  
@@ -257,7 +276,7 @@ public class CityGuideGUI extends Application{
         GridPane.setMargin(homeHBox, new Insets(5, 10, 5, 10));
         saveButton.setPadding(new Insets(10,40,10,10));
 
-        searchGrid.getColumnConstraints().add(new ColumnConstraints(65));
+        searchGrid.getColumnConstraints().add(new ColumnConstraints(75));
         searchGrid.getChildren().addAll(searchHbox, searchList, homeHBox);
         
         
@@ -286,10 +305,8 @@ public class CityGuideGUI extends Application{
             public void handle(javafx.scene.input.MouseEvent event) {
             	List<String> fileList = LibraryReader.ReadFileNames();
             	String fileSelected = fileList.get(savedList.getSelectionModel().getSelectedIndex());
-            	System.out.println(fileSelected);
-				File f = LibraryReader.LoadFiles(fileSelected);
-				LibraryReader.LoadFiles(fileSelected);
-				l.setText(f.toString());
+				String fileString = LibraryReader.readFileAsString(fileSelected);
+				l.setText(fileString);
 				
 				popup.show(window);
             }

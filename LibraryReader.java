@@ -1,6 +1,9 @@
 package google;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,4 +30,14 @@ public class LibraryReader {
 		return fileNames;
 	}
 	
+	public static String readFileAsString(String fileName) {
+	    String text = "";
+	    try {
+	      text = new String(Files.readAllBytes(Paths.get(String.format("/outputFiles/%s", fileName))));
+	    } catch (IOException e) {
+	      e.printStackTrace();
+	    }
+
+	    return text;
+	  }
 }

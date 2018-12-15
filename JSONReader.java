@@ -56,7 +56,8 @@ public class JSONReader {
 	
 				  ge.formatted_address = address;
 				  ge.name = name;
-				  ge.opening_hours = hours;
+				  String[] ohArray = hours.split(":");
+				  ge.opening_hours = ohArray[1];
 				  ge.rating = rating;
 				  String[] addressArray = Event.stringToken(address);
 				  ge.location = addressArray[2];

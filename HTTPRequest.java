@@ -13,10 +13,6 @@ import java.net.URLEncoder;
 
 
 public class HTTPRequest {
-	
-	public static void main(String[] args) throws Exception {
-
-	}	
 
 	public static String searchString = "";
 	final static String resultsFile = "C:\\Users\\brent\\Desktop\\CityGuide\\JSONFiles\\Results.json";
